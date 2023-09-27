@@ -4,8 +4,5 @@
         "**/.project": true,
         "**/.settings": true,
         "**/.factorypath": true
-    },
-    "files.associations": {
-        "string.h": "c"
     }
 }

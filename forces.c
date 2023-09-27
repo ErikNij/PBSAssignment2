@@ -90,7 +90,7 @@ double calculate_forces_angle(struct Parameters *p_parameters, struct Vectors *p
         /*
             Here provide the force calculation
         */
-
+        
         f[i].x += fi.x;
         f[i].y += fi.y;
         f[i].z += fi.z;
