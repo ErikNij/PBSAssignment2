@@ -9,7 +9,7 @@ void set_parameters(struct Parameters *p_parameters)
 /* Set the parameters of this simulation */
 {
 // The parameters first 5 parameters are only used for demonstration puprposes
-  p_parameters->kT = Kb*(1e-10*1e-10 *AV *1e3)/(1e-12)*(273.15+T);//1.0;      //thermal energy         //transformation Kb*T units
+  p_parameters->kT = Kb*(1e-10*1e-10 *AV *1e3)/(1e-12)*(273.15+Tc);//1.0;      //thermal energy         //transformation Kb*T units
   p_parameters->mass = 14.0;//1.0;                                 //mass of a particle
   p_parameters->epsilon = 148.0*Kb;//1.0;                              //LJ interaction strength
   p_parameters->sigma = 3.73;//1.0;                                //LJ particle diameter
