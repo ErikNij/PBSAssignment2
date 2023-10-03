@@ -26,6 +26,8 @@ struct Parameters
     int exclude_13_nb;       //!< If true (-1) 1-3 connected atoms are exluded from non-bonded interactions    
     double kT;               //!< Thermal energy
     double T;                // Temp K
+    double tau;
+    double target_temp;
     double mass;             //!< Mass of a particle
     double epsilon;          //!< LJ interaction strength
     double sigma;            //!< LJ particle diameter
