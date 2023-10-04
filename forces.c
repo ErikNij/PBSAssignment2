@@ -129,7 +129,7 @@ double calculate_forces_nb(struct Parameters *p_parameters, struct Nbrlist *p_nb
 This function returns the total potential energy of the system. */
 {
     struct Vec3D df;
-    double r_cutsq, sigmasq, sr2, sr6, sr12, fr, prefctr;
+    double r_cutsq, sigmasq, sr2, sr6, sr12, fr, prefctr,meanSigma;
     struct DeltaR rij;
     struct Pair *nbr = p_nbrlist->nbr;
     const size_t num_nbrs = p_nbrlist->num_nbrs;
@@ -137,28 +137,39 @@ This function returns the total potential energy of the system. */
     size_t num_part = p_parameters->num_part;
 
     r_cutsq = p_parameters->r_cut * p_parameters->r_cut;
-    sigmasq = p_parameters->sigma * p_parameters->sigma;
+    //sigmasq = p_parameters->sigma * p_parameters->sigma;
     double epsilon = p_parameters->epsilon;
 
     double Epot = 0.0, Epot_cutoff;
-    sr2 = sigmasq / r_cutsq;
-    sr6 = sr2 * sr2 * sr2;
-    sr12 = sr6 * sr6;
-    Epot_cutoff = sr12 - sr6;
+    //sr2 = sigmasq / r_cutsq;
 
     for (size_t k = 0; k < num_nbrs; k++)
     {
         // for each pair in the neighbor list compute the pair forces
+        // Getting the sigma for the pair, which is just the mean
+        meanSigma = (p_parameters->sigmaArray[nbr[k].i % 3] + p_parameters->sigmaArray[nbr[k].j % 3])/2;
+        sr2 = meanSigma * meanSigma / r_cutsq;
+        sr6 = sr2 * sr2 * sr2;
+        sr12 = sr6 * sr6;
+        Epot_cutoff = sr12 - sr6;
         rij = nbr[k].rij;
         size_t i = nbr[k].i;
         size_t j = nbr[k].j;
         if (rij.sq < r_cutsq)
         // Compute forces if the distance is smaller than the cutoff distance
         {
-            // pair forces are given by the LJ interaction
-            sr2 = sigmasq / rij.sq;
+            if (p_parameters->epsilonArray[nbr[k].i % 3] != p_parameters->epsilonArray[nbr[k].j % 3])
+            {
+                epsilon = sqrt(p_parameters->epsilonArray[nbr[k].i % 3] * p_parameters->epsilonArray[nbr[k].j % 3]);
+            }
+            else
+            {
+                epsilon = p_parameters->epsilonArray[nbr[k].i % 3];
+            }
+            sr2 = meanSigma * meanSigma / rij.sq;
             sr6 = sr2 * sr2 * sr2;
             sr12 = sr6 * sr6;
+            // pair forces are given by the LJ interaction
             Epot += 4.0 * epsilon * (sr12 - sr6 - Epot_cutoff);
             fr = 24.0 * epsilon * (2.0 * sr12 - sr6) / rij.sq; //force divided by distance
             df.x = fr * rij.x;

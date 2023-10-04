@@ -8,8 +8,15 @@
 
 void initialise_types(struct Parameters *p_parameters, struct Vectors *p_vectors)
 {
-    for (size_t i = 0; i < p_parameters->num_part; i++)
-        p_vectors->type[i] = 0; // Specify particle type
+    for (size_t i = 0; i <  p_parameters->num_part; i++)
+        if (i % 3 == 0)
+        {
+            p_vectors->type[i] = 0; // Specify particle type
+        }
+        else
+        {
+            p_vectors->type[i] = 1; // Specify particle type
+        }
 }
 
 void initialise_bond_connectivity(struct Parameters *p_parameters, struct Vectors *p_vectors)
