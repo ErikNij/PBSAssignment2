@@ -63,11 +63,14 @@ void thermostat(struct Parameters *p_parameters, struct Vectors *p_vectors, doub
 /* Change velocities by thermostatting 
 Question 6 */
 {
-     double current_temp = 2.0 * Ekin / (3.0 * p_parameters->num_part); // Current temperature calculation
+     double current_temp = 2.0 * Ekin / (3.0 * p_parameters->num_part * Kb); // Current temperature calculation
      double lambda = sqrt(1.0 + p_parameters->dt / p_parameters->tau * (p_parameters->T/ current_temp - 1.0));
 
      for (size_t i = 0; i < p_parameters->num_part; i++)
     {
+        /*p_vectors->v[i].x = lambda * p_vectors->v[i].x;
+        p_vectors->v[i].y = lambda * p_vectors->v[i].y;
+        p_vectors->v[i].z = lambda * p_vectors->v[i].z;*/
         p_vectors->v[i].x *= lambda;
         p_vectors->v[i].y *= lambda;
         p_vectors->v[i].z *= lambda;

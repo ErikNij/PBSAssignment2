@@ -18,7 +18,7 @@ void set_parameters(struct Parameters *p_parameters)
 
 // The parameters below control core functionalities of the code, but many values will need to be changed
   p_parameters->num_part = 999;                            //number of particles
-  p_parameters->num_dt_steps = 20000;                        //number of time steps
+  p_parameters->num_dt_steps = 2000;                        //number of time steps
   p_parameters->exclude_12_nb = 1;                          // 1-2 connected atoms exluded from non-bonded interactions 
   p_parameters->exclude_13_nb = 1;                          // 1-3 connected atoms exluded from non-bonded interactions    
   p_parameters->dt = 5;                                  //integration time step
