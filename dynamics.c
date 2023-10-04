@@ -68,9 +68,6 @@ Question 6 */
 
      for (size_t i = 0; i < p_parameters->num_part; i++)
     {
-        /*p_vectors->v[i].x = lambda * p_vectors->v[i].x;
-        p_vectors->v[i].y = lambda * p_vectors->v[i].y;
-        p_vectors->v[i].z = lambda * p_vectors->v[i].z;*/
         p_vectors->v[i].x *= lambda;
         p_vectors->v[i].y *= lambda;
         p_vectors->v[i].z *= lambda;
