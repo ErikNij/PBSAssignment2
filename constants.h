@@ -6,7 +6,6 @@
 
 #define PI 3.141592653589
 #define AV (6.022e23)       //1/mol
-#define Kb (1.38e-23)       // m2*kg-/s^2/K
-#define Tc 25                // celsius   
+#define Kb (8.31e-7)       //(Amstrong^2 u )/(fs^2) 
 
 #endif /* CONSTANTS_H_ */

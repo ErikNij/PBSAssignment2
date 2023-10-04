@@ -9,23 +9,25 @@ void set_parameters(struct Parameters *p_parameters)
 /* Set the parameters of this simulation */
 {
 // The parameters first 5 parameters are only used for demonstration puprposes
-  p_parameters->kT = Kb*(1e-10*1e-10 *AV *1e3)/(1e-12)*(273.15+Tc);//1.0;      //thermal energy         //transformation Kb*T units
-  p_parameters->mass = 14.0;//1.0;                                 //mass of a particle
-  p_parameters->epsilon = 148.0*Kb;//1.0;                              //LJ interaction strength
-  p_parameters->sigma = 3.73;//1.0;                                //LJ particle diameter
+  p_parameters->T = 298.15;       // simulation at 25 degrees celcius
+  p_parameters->kT = Kb*p_parameters->T; //2.48E-4;      //(Amstrong^2 u )/(fs^2)                                   //thermal energy
+  p_parameters->mass = 16.04;      // u                                 //mass of a particle
+  p_parameters->epsilon = 148*Kb;//1.23E-4; //(Amstrong^2 u)/fs^2;                              //LJ interaction strength
+  p_parameters->sigma = 3.73;      // Amstrong                                //LJ particle diameter
+ 
 
 // The parameters below control core functionalities of the code, but many values will need to be changed
-  p_parameters->num_part = 2000;                            //number of particles
-  p_parameters->num_dt_steps = 2000;                        //number of time steps
+  p_parameters->num_part = 999;                            //number of particles
+  p_parameters->num_dt_steps = 20000;                        //number of time steps
   p_parameters->exclude_12_nb = 1;                          // 1-2 connected atoms exluded from non-bonded interactions 
   p_parameters->exclude_13_nb = 1;                          // 1-3 connected atoms exluded from non-bonded interactions    
-  p_parameters->dt = 0.01;                                  //integration time step
-  p_parameters->tau = 0.1;
-  p_parameters->target_temp = 273.15+Tc;
-  p_parameters->L = (struct Vec3D){14.938, 14.938, 14.938}; //box size                                  //e1 toegevoegd
-    p_parameters->r_cut = 2.5;                              //cut-off distance used for neigbor list
+  p_parameters->dt = 5;                                  //integration time step
+  p_parameters->tau = 10;                                // typical 0.1 picosecond = 10 fentosecond
+  //p_parameters->L = (struct Vec3D){14.938, 14.938, 14.938}; //box size                                 
+  p_parameters->L = (struct Vec3D){60.0, 60.0, 60.0};       // box size for question 4 to 12  
+    p_parameters->r_cut = 10;//2.5;                              //cut-off distance used for neigbor list
   p_parameters->r_shell = 0.4;                              //shell thickness for neighbor list
-  p_parameters->num_dt_pdb = 500;                           //number of time steps in between pdb outputs
+  p_parameters->num_dt_pdb = 100;                           //number of time steps in between pdb outputs
   strcpy(p_parameters->filename_pdb, "trajectories");       //filename (without extension) for pdb file
   p_parameters->rescale_output = 1;                         //factor used to rescale output lengthscale (Most visualisation programs identify bonds based on distances of order 1)
   p_parameters->load_restart = 0;                           //if equal 1 restart file is loaded

@@ -27,7 +27,6 @@ struct Parameters
     double kT;               //!< Thermal energy
     double T;                // Temp K
     double tau;
-    double target_temp;
     double mass;             //!< Mass of a particle
     double epsilon;          //!< LJ interaction strength
     double sigma;            //!< LJ particle diameter

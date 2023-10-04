@@ -64,12 +64,12 @@ void thermostat(struct Parameters *p_parameters, struct Vectors *p_vectors, doub
 Question 6 */
 {
      double current_temp = 2.0 * Ekin / (3.0 * p_parameters->num_part); // Current temperature calculation
-     double scaling_factor = sqrt(1.0 + p_parameters->dt / p_parameters->tau * (p_parameters->target_temp / current_temp - 1.0));
+     double lambda = sqrt(1.0 + p_parameters->dt / p_parameters->tau * (p_parameters->T/ current_temp - 1.0));
 
      for (size_t i = 0; i < p_parameters->num_part; i++)
     {
-        p_vectors->v[i].x *= scaling_factor;
-        p_vectors->v[i].y *= scaling_factor;
-        p_vectors->v[i].z *= scaling_factor;
+        p_vectors->v[i].x *= lambda;
+        p_vectors->v[i].y *= lambda;
+        p_vectors->v[i].z *= lambda;
     }
 }
