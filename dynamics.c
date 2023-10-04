@@ -60,7 +60,8 @@ void boundary_conditions(struct Parameters *p_parameters, struct Vectors *p_vect
 }
 
 void thermostat(struct Parameters *p_parameters, struct Vectors *p_vectors, double Ekin)
-/* Change velocities by thermostatting */
+/* Change velocities by thermostatting 
+Question 6 */
 {
      double current_temp = 2.0 * Ekin / (3.0 * p_parameters->num_part); // Current temperature calculation
      double scaling_factor = sqrt(1.0 + p_parameters->dt / p_parameters->tau * (p_parameters->target_temp / current_temp - 1.0));
