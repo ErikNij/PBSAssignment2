@@ -32,8 +32,11 @@ struct Parameters
     double sigma;            //!< LJ particle diameter
     double sigmaArray[3];
     double epsilonArray[3];
+    double massArray[3];
     double r_0;
     double k_b;
+    double k_t;
+    double theta_0;
     double r_cut;            //!< Cut-off distance for LJ interaction
     double r_shell;          //!< Shell thickness for neighbor list
     size_t num_dt_pdb;       //!< Number of time steps between pdb saves

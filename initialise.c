@@ -9,7 +9,7 @@
 void initialise_types(struct Parameters *p_parameters, struct Vectors *p_vectors)
 {
     for (size_t i = 0; i <  p_parameters->num_part; i++)
-        if (i % 3 == 0)
+        if (i % 3 == 1)
         {
             p_vectors->type[i] = 0; // Specify particle type
         }
@@ -28,10 +28,10 @@ void initialise_bond_connectivity(struct Parameters *p_parameters, struct Vector
 
     for (m = 0; m < num_bonds / 2; m++)
     {
-        bonds[m].i = m;                                                               // First CH3
-        bonds[m].j = m + 2 * p_parameters->num_part / 3;                              // CH2
-        bonds[m + p_parameters->num_part / 3].i = m + 1 * p_parameters->num_part / 3; // Second CH3
-        bonds[m + p_parameters->num_part / 3].j = m + 2 * p_parameters->num_part / 3; // CH2
+        bonds[2*m].i = 3 * m;         // First CH3
+        bonds[2*m].j = 3 * m + 1;     // (Shared) CH2
+        bonds[2*m + 1].i = 3 * m + 2; // Other CH3
+        bonds[2*m + 1].j = 3 * m + 1; // (Shared) CH2
     }
 
     p_vectors->num_bonds = num_bonds;
@@ -196,23 +196,35 @@ void initialise_positions(struct Parameters *p_parameters, struct Vectors *p_vec
     int ipart;
 
     dl = pow(p_parameters->L.x * p_parameters->L.y * p_parameters->L.z / ((double)p_parameters->num_part), 1.0 / 3.0);
-    dr.z = p_parameters->r_0;
     n.i = (int)ceil(p_parameters->L.x / dl);
     n.j = (int)ceil(p_parameters->L.y / dl);
-    n.k = (int)3*floor(p_parameters->L.z / dr.z/3);
+    n.k = (int)ceil(p_parameters->L.z / dl);
     dr.x = p_parameters->L.x / (double)n.i;
     dr.y = p_parameters->L.y / (double)n.j;
-    //dr.z = p_parameters->L.z / (double)n.k;
-    ipart = 0;
+    dr.z = p_parameters->L.z / (double)n.k;
+    ipart = 1;
     for (size_t i = 0; i < n.i; ++i)
         for (size_t j = 0; j < n.j; ++j)
-            for (size_t k = 0; k < n.k; ++k, ++ipart)
+            for (size_t k = 0; k < n.k; ++k, ipart = ipart + 3)
             {
                 if (ipart >= p_parameters->num_part)
                     break;
-                p_vectors->r[ipart].x = (i + 0.5) * dr.x;
-                p_vectors->r[ipart].y = (j + 0.5) * dr.y;
-                p_vectors->r[ipart].z = (k + 0.5) * dr.z;
+                p_vectors->r[ipart].x = (i + 0.7) * dr.x;
+                p_vectors->r[ipart].y = (j + 0.7) * dr.y;
+                p_vectors->r[ipart].z = (k + 0.7) * dr.z;
+
+                p_vectors->r[ipart-1].x = p_vectors->r[ipart].x + p_parameters->r_0;
+                p_vectors->r[ipart-1].y = p_vectors->r[ipart].y;
+                p_vectors->r[ipart-1].z = p_vectors->r[ipart].z;
+
+                double thetaPrime = PI - p_parameters->theta_0;
+                double xCorrection = p_parameters->r_0 * cos(thetaPrime);
+                double yCorrection = p_parameters->r_0 * sin(thetaPrime);
+
+                p_vectors->r[ipart+1].x = p_vectors->r[ipart].x - xCorrection;
+                p_vectors->r[ipart+1].y = p_vectors->r[ipart].y - yCorrection;
+                p_vectors->r[ipart+1].z = p_vectors->r[ipart].z;
+
                 //      p_vectors->r[ipart].x = p_parameters->L.x*generate_uniform_random();
                 //      p_vectors->r[ipart].y = p_parameters->L.y*generate_uniform_random();
                 //      p_vectors->r[ipart].z = p_parameters->L.z*generate_uniform_random();
@@ -224,12 +236,13 @@ void initialise_velocities(struct Parameters *p_parameters, struct Vectors *p_ve
     Initial velocities are sampled according to the Maxwell-Boltzmann distribution
 */
 {
-    double sqrtktm = sqrt(p_parameters->kT / p_parameters->mass);
+    double sqrtktm;
     struct Vec3D sumv = (struct Vec3D){
         0.0};
 
     for (size_t i = 0; i < p_parameters->num_part; i++)
     {
+        sqrtktm = sqrt(p_parameters->kT / p_parameters->massArray[i%3]);
         p_vectors->v[i].x = sqrtktm * gauss();
         p_vectors->v[i].y = sqrtktm * gauss();
         p_vectors->v[i].z = sqrtktm * gauss();

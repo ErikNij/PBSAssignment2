@@ -15,7 +15,7 @@ double calculate_forces(struct Parameters *p_parameters, struct Nbrlist *p_nbrli
         f[i] = (struct Vec3D){0.0, 0.0, 0.0}; /*initialize forces to zero*/
 
     double Epot = calculate_forces_bond(p_parameters, p_vectors);
-    Epot += calculate_forces_angle(p_parameters, p_vectors);
+    //Epot += calculate_forces_angle(p_parameters, p_vectors);
     Epot += calculate_forces_dihedral(p_parameters, p_vectors);
     Epot += calculate_forces_nb(p_parameters, p_nbrlist, p_vectors);
     return Epot;
@@ -95,9 +95,15 @@ double calculate_forces_angle(struct Parameters *p_parameters, struct Vectors *p
         rkj.z = r[k].z - r[j].z;
         rkj.z = rkj.z - L.z*floor(rkj.z/L.z+0.5);
 
-        /*
-            Here provide the force calculation
-        */
+        double dotProduct = (rij.x* rkj.x) + (rij.y* rkj.y) + (rij.z* rkj.z);
+        double FConst = p_parameters->k_t * (acos(dotProduct) - p_parameters->theta_0) / sqrt(1 - pow(dotProduct,2));
+        fi.x  = FConst / (rij.x + rij.y + rij.z) * (rkj.x - (rij.x*dotProduct));
+        fi.y  = FConst / (rij.x + rij.y + rij.z) * (rkj.y - (rij.y*dotProduct));
+        fi.z  = FConst / (rij.x + rij.y + rij.z) * (rkj.z - (rij.z*dotProduct));
+
+        fk.x  = FConst / (rkj.x + rkj.y + rkj.z) * (rij.x - (rkj.x*dotProduct));
+        fk.y  = FConst / (rkj.x + rkj.y + rkj.z) * (rij.y - (rkj.y*dotProduct));
+        fk.z  = FConst / (rkj.x + rkj.y + rkj.z) * (rij.z - (rkj.z*dotProduct));
         
         f[i].x += fi.x;
         f[i].y += fi.y;
@@ -108,6 +114,7 @@ double calculate_forces_angle(struct Parameters *p_parameters, struct Vectors *p
         f[k].x += fk.x;
         f[k].y += fk.y;
         f[k].z += fk.z;
+        Epot += p_parameters->k_t / 2 * pow(acos(dotProduct) - p_parameters->theta_0,2);
     }
     return Epot;
 }
