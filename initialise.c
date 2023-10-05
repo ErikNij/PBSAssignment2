@@ -19,17 +19,23 @@ void initialise_types(struct Parameters *p_parameters, struct Vectors *p_vectors
         }
 }
 
+/* Question 8*/
 void initialise_bond_connectivity(struct Parameters *p_parameters, struct Vectors *p_vectors)
-{
-    size_t num_bonds = 0;
+{/*
+    int m = 0;
+    size_t num_bonds = 2 * p_parameters->num_part / 3; //0;
     struct Bond *bonds = (struct Bond *)malloc(num_bonds * sizeof(struct Bond));
 
-    /* 
-        Provide code to specify bonds as pairs of particles: bond[k].i and bond[k].j
-    */
+    for (m = 0; m < num_bonds / 2; m++)
+    {
+        bonds[m].i = m;                                                               // First CH3
+        bonds[m].j = m + 2 * p_parameters->num_part / 3;                              // CH2
+        bonds[m + p_parameters->num_part / 3].i = m + 1 * p_parameters->num_part / 3; // Second CH3
+        bonds[m + p_parameters->num_part / 3].j = m + 2 * p_parameters->num_part / 3; // CH2
+    }
 
     p_vectors->num_bonds = num_bonds;
-    p_vectors->bonds = bonds;
+    p_vectors->bonds = bonds;*/
 }
 
 void initialise_structure(struct Parameters *p_parameters, struct Vectors *p_vectors, struct Nbrlist *p_nbrlist)
