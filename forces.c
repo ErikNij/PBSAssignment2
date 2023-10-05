@@ -45,21 +45,23 @@ double calculate_forces_bond(struct Parameters *p_parameters, struct Vectors *p_
         rij.y = rij.y - L.y*floor(rij.y/L.y+0.5); 
         rij.z = r[i].z - r[j].z;
         rij.z = rij.z - L.z*floor(rij.z/L.z+0.5);
-/*
-        rijabs = sqrt(rij.x * rij.x + rij.y * rij.y + rij.z * rij.z);   //
+
+        rijabs = sqrt((rij.x * rij.x) + (rij.y * rij.y) +( rij.z * rij.z));   //
         //p_vectors->length[q] = rijabs; 
         Fij = -p_parameters->k_b * (rijabs - p_parameters->r_0);        //
         fi.x = Fij * (rij.x / rijabs);                                  //
         fi.y = Fij * (rij.y / rijabs);                                  //
         fi.z = Fij * (rij.z / rijabs);                                  //
-*/
+
         f[i].x += fi.x;
         f[i].y += fi.y;
         f[i].z += fi.z;
         f[j].x -= fi.x;
         f[j].y -= fi.y;
         f[j].z -= fi.z;
+        Epot += p_parameters->k_b /2 * pow(rijabs - p_parameters->r_0,2);
     }
+
     return Epot;
 }
 

@@ -21,7 +21,7 @@ void initialise_types(struct Parameters *p_parameters, struct Vectors *p_vectors
 
 /* Question 8*/
 void initialise_bond_connectivity(struct Parameters *p_parameters, struct Vectors *p_vectors)
-{/*
+{
     int m = 0;
     size_t num_bonds = 2 * p_parameters->num_part / 3; //0;
     struct Bond *bonds = (struct Bond *)malloc(num_bonds * sizeof(struct Bond));
@@ -35,7 +35,7 @@ void initialise_bond_connectivity(struct Parameters *p_parameters, struct Vector
     }
 
     p_vectors->num_bonds = num_bonds;
-    p_vectors->bonds = bonds;*/
+    p_vectors->bonds = bonds;
 }
 
 void initialise_structure(struct Parameters *p_parameters, struct Vectors *p_vectors, struct Nbrlist *p_nbrlist)
@@ -196,12 +196,13 @@ void initialise_positions(struct Parameters *p_parameters, struct Vectors *p_vec
     int ipart;
 
     dl = pow(p_parameters->L.x * p_parameters->L.y * p_parameters->L.z / ((double)p_parameters->num_part), 1.0 / 3.0);
+    dr.z = p_parameters->r_0;
     n.i = (int)ceil(p_parameters->L.x / dl);
     n.j = (int)ceil(p_parameters->L.y / dl);
-    n.k = (int)ceil(p_parameters->L.z / dl);
+    n.k = (int)3*floor(p_parameters->L.z / dr.z/3);
     dr.x = p_parameters->L.x / (double)n.i;
     dr.y = p_parameters->L.y / (double)n.j;
-    dr.z = p_parameters->L.z / (double)n.k;
+    //dr.z = p_parameters->L.z / (double)n.k;
     ipart = 0;
     for (size_t i = 0; i < n.i; ++i)
         for (size_t j = 0; j < n.j; ++j)
