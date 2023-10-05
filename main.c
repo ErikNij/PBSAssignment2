@@ -66,6 +66,12 @@ int main(void)
     Epot = calculate_forces(&parameters, &nbrlist, &vectors);
     record_trajectories_pdb(1, &parameters, &vectors, time);
 
+    FILE *fpt; // Declare a file pointer
+
+    // Open the CSV file for writing
+    fpt = fopen("Save_Energy.csv","w+");
+    fprintf(fpt,"Time_step, Time, Epot, Ekin, Etot\n");
+
     while (step < parameters.num_dt_steps) // start of the velocity-Verlet loop
     {
         step++;
@@ -79,9 +85,13 @@ int main(void)
         Ekin = update_velocities_half_dt(&parameters, &nbrlist, &vectors);
 
         printf("Step %zu, Time %f, Epot %f, Ekin %f, Etot %f\n", step, time, Epot, Ekin, Epot + Ekin);
+        fprintf(fpt,"%zu, %f, %f, %f, %f\n", step, time, Epot, Ekin, Epot + Ekin);  // Write values to the CSV file
         if (step % parameters.num_dt_pdb == 0) record_trajectories_pdb(0, &parameters, &vectors, time);
         if (step % parameters.num_dt_restart == 0) save_restart(&parameters,&vectors); 
     }
+
+    fclose(fpt); // Close the file
+
     save_restart(&parameters, &vectors);
     free_memory(&vectors, &nbrlist);
 
