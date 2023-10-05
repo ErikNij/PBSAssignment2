@@ -25,9 +25,9 @@ void set_parameters(struct Parameters *p_parameters)
   p_parameters->sigmaArray[1] = 3.75;         //sigma for CH2
   p_parameters->sigmaArray[2] = 3.95;         //sigma for CH2
 
-  p_parameters->massArray[0] = 12 + 3;
-  p_parameters->massArray[1] = 12 + 2;
-  p_parameters->massArray[2] = 12 + 3;
+  p_parameters->massArray[0] = 12.0 + 3.0;
+  p_parameters->massArray[1] = 12.0 + 2.0;
+  p_parameters->massArray[2] = 12.0 + 3.0;
 
 
    p_parameters->r_0 = 1.54;                // Angstrom   Equilibrium diameter
@@ -38,7 +38,7 @@ void set_parameters(struct Parameters *p_parameters)
 
 // The parameters below control core functionalities of the code, but many values will need to be changed
   p_parameters->num_part = 999;                            //number of particles
-  p_parameters->num_dt_steps = 2000;                        //number of time steps
+  p_parameters->num_dt_steps = 20000;                        //number of time steps
   p_parameters->exclude_12_nb = 1;                          // 1-2 connected atoms exluded from non-bonded interactions 
   p_parameters->exclude_13_nb = 1;                          // 1-3 connected atoms exluded from non-bonded interactions    
   p_parameters->dt = 0.01;                                  //integration time step

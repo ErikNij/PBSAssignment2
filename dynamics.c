@@ -36,9 +36,9 @@ double update_velocities_half_dt(struct Parameters *p_parameters, struct Nbrlist
         p_vectors->v[i].x += factor * p_vectors->f[i].x;
         p_vectors->v[i].y += factor * p_vectors->f[i].y;
         p_vectors->v[i].z += factor * p_vectors->f[i].z;
-        Ekin += p_vectors->v[i].x * p_vectors->v[i].x + p_vectors->v[i].y * p_vectors->v[i].y + p_vectors->v[i].z * p_vectors->v[i].z;
+        Ekin += p_parameters->massArray[i%3]*( p_vectors->v[i].x * p_vectors->v[i].x + p_vectors->v[i].y * p_vectors->v[i].y + p_vectors->v[i].z * p_vectors->v[i].z);
     }
-    Ekin = 0.5 * Ekin * p_parameters->mass;
+    Ekin = 0.5 * Ekin;
     return Ekin;
 }
 
