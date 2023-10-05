@@ -11,16 +11,19 @@ void set_parameters(struct Parameters *p_parameters)
 // The parameters first 5 parameters are only used for demonstration puprposes
   p_parameters->T = 298.15;       // simulation at 25 degrees celcius
   p_parameters->kT = Kb*p_parameters->T; //2.48E-4;      //(Angstrong^2 u )/(fs^2)                                   //thermal energy
+  
   p_parameters->mass = 16.04;      // u                                 //mass of a particle
+  
+  
   p_parameters->epsilon = 148*Kb;//1.23E-4; //(Amstrong^2 u)/fs^2;                              //LJ interaction strength
-  p_parameters->epsilonArray[0] = 98.0*Kb;
-  p_parameters->epsilonArray[1] = 46.0*Kb;
-  p_parameters->epsilonArray[2] = 46.0*Kb;
+  p_parameters->epsilonArray[0] = 98.0*Kb;    //epsilon for CH3
+  p_parameters->epsilonArray[1] = 46.0*Kb;    //epsilon for CH2
+  p_parameters->epsilonArray[2] = 46.0*Kb;    //epsilon for CH2
   
   p_parameters->sigma = 3.73;      // Angstrong                                //LJ particle diameter
-  p_parameters->sigmaArray[0] = 3.75;
-  p_parameters->sigmaArray[1] = 3.95;
-  p_parameters->sigmaArray[2] = 3.95;
+  p_parameters->sigmaArray[0] = 3.75;         //sigma for CH3
+  p_parameters->sigmaArray[1] = 3.95;         //sigma for CH2
+  p_parameters->sigmaArray[2] = 3.95;         //sigma for CH2
 
    p_parameters->r_0 = 1.54;                // Angstrom   Equilibrium diameter
    p_parameters->k_b = Kb*3.19e5;            // (u/(fs^2*K))   Angular stiffness
@@ -28,7 +31,7 @@ void set_parameters(struct Parameters *p_parameters)
 
 // The parameters below control core functionalities of the code, but many values will need to be changed
   p_parameters->num_part = 999;                            //number of particles
-  p_parameters->num_dt_steps = 20000;                        //number of time steps
+  p_parameters->num_dt_steps = 2000;                        //number of time steps
   p_parameters->exclude_12_nb = 1;                          // 1-2 connected atoms exluded from non-bonded interactions 
   p_parameters->exclude_13_nb = 1;                          // 1-3 connected atoms exluded from non-bonded interactions    
   p_parameters->dt = 0.01;                                  //integration time step
