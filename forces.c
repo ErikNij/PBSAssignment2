@@ -15,7 +15,7 @@ double calculate_forces(struct Parameters *p_parameters, struct Nbrlist *p_nbrli
         f[i] = (struct Vec3D){0.0, 0.0, 0.0}; /*initialize forces to zero*/
 
     double Epot = calculate_forces_bond(p_parameters, p_vectors);
-    //Epot += calculate_forces_angle(p_parameters, p_vectors);
+    Epot += calculate_forces_angle(p_parameters, p_vectors);
     Epot += calculate_forces_dihedral(p_parameters, p_vectors);
     Epot += calculate_forces_nb(p_parameters, p_nbrlist, p_vectors);
     return Epot;
@@ -95,15 +95,31 @@ double calculate_forces_angle(struct Parameters *p_parameters, struct Vectors *p
         rkj.z = r[k].z - r[j].z;
         rkj.z = rkj.z - L.z*floor(rkj.z/L.z+0.5);
 
-        double dotProduct = (rij.x* rkj.x) + (rij.y* rkj.y) + (rij.z* rkj.z);
-        double FConst = p_parameters->k_t * (acos(dotProduct) - p_parameters->theta_0) / sqrt(1 - pow(dotProduct,2));
-        fi.x  = FConst / (rij.x + rij.y + rij.z) * (rkj.x - (rij.x*dotProduct));
-        fi.y  = FConst / (rij.x + rij.y + rij.z) * (rkj.y - (rij.y*dotProduct));
-        fi.z  = FConst / (rij.x + rij.y + rij.z) * (rkj.z - (rij.z*dotProduct));
+        double kjsq = sqrt(rkj.x*rkj.x + rkj.y*rkj.y + rkj.z*rkj.z);
+        double ijsq = sqrt(rij.x*rij.x + rij.y*rij.y + rij.z*rij.z);
 
-        fk.x  = FConst / (rkj.x + rkj.y + rkj.z) * (rij.x - (rkj.x*dotProduct));
-        fk.y  = FConst / (rkj.x + rkj.y + rkj.z) * (rij.y - (rkj.y*dotProduct));
-        fk.z  = FConst / (rkj.x + rkj.y + rkj.z) * (rij.z - (rkj.z*dotProduct));
+        double dotProduct = (rij.x* rkj.x) + (rij.y* rkj.y) + (rij.z* rkj.z);
+        double arg = dotProduct/kjsq/ijsq;
+        double dig;
+        if (arg < 0)
+        {
+            dig = ceil(arg);
+            arg = arg - dig;
+        }
+        else
+            dig = floor(arg);
+            arg = arg - dig;
+        double CurrentAngle = acos(arg);
+        
+
+        double FConst = p_parameters->k_t * (CurrentAngle - p_parameters->theta_0) / sqrt(1 - pow(dotProduct,2));
+        fi.x  = FConst / ijsq * (rkj.x - (rij.x*dotProduct));
+        fi.y  = FConst / ijsq * (rkj.y - (rij.y*dotProduct));
+        fi.z  = FConst / ijsq * (rkj.z - (rij.z*dotProduct));
+
+        fk.x  = FConst / kjsq * (rij.x - (rkj.x*dotProduct));
+        fk.y  = FConst / kjsq * (rij.y - (rkj.y*dotProduct));
+        fk.z  = FConst / kjsq * (rij.z - (rkj.z*dotProduct));
         
         f[i].x += fi.x;
         f[i].y += fi.y;
@@ -114,7 +130,7 @@ double calculate_forces_angle(struct Parameters *p_parameters, struct Vectors *p
         f[k].x += fk.x;
         f[k].y += fk.y;
         f[k].z += fk.z;
-        Epot += p_parameters->k_t / 2 * pow(acos(dotProduct) - p_parameters->theta_0,2);
+        Epot += p_parameters->k_t / 2 * pow(acos(dotProduct/kjsq/ijsq) - p_parameters->theta_0,2);
     }
     return Epot;
 }
@@ -161,18 +177,20 @@ This function returns the total potential energy of the system. */
     for (size_t k = 0; k < num_nbrs; k++)
     {
         // for each pair in the neighbor list compute the pair forces
-        // Getting the sigma for the pair, which is just the mean
-        meanSigma = (p_parameters->sigmaArray[nbr[k].i % 3] + p_parameters->sigmaArray[nbr[k].j % 3])/2;
-        sr2 = meanSigma * meanSigma / r_cutsq;
-        sr6 = sr2 * sr2 * sr2;
-        sr12 = sr6 * sr6;
-        Epot_cutoff = sr12 - sr6;
+        
+        
         rij = nbr[k].rij;
         size_t i = nbr[k].i;
         size_t j = nbr[k].j;
         if (rij.sq < r_cutsq)
         // Compute forces if the distance is smaller than the cutoff distance
         {
+            // Getting the sigma for the pair, which is just the mean
+            meanSigma = (p_parameters->sigmaArray[nbr[k].i % 3] + p_parameters->sigmaArray[nbr[k].j % 3])/2;
+            sr2 = meanSigma * meanSigma / r_cutsq;
+            sr6 = sr2 * sr2 * sr2;
+            sr12 = sr6 * sr6;
+            Epot_cutoff = sr12 - sr6;
             if (p_parameters->epsilonArray[nbr[k].i % 3] != p_parameters->epsilonArray[nbr[k].j % 3])
             {
                 epsilon = sqrt(p_parameters->epsilonArray[nbr[k].i % 3] * p_parameters->epsilonArray[nbr[k].j % 3]);

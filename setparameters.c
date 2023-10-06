@@ -15,7 +15,7 @@ void set_parameters(struct Parameters *p_parameters)
   p_parameters->mass = 16.04;      // u                                 //mass of a particle
   
   
-  p_parameters->epsilon = 148*Kb;//1.23E-4; //(Amstrong^2 u)/fs^2;                              //LJ interaction strength
+  p_parameters->epsilon = 148*Kb;//1.23E-4; //(Amstrong^2 u)/fs^2; 
   p_parameters->epsilonArray[0] = 46.0*Kb;    //epsilon for CH3
   p_parameters->epsilonArray[1] = 98.0*Kb;    //epsilon for CH2
   p_parameters->epsilonArray[2] = 46.0*Kb;    //epsilon for CH2
@@ -38,10 +38,10 @@ void set_parameters(struct Parameters *p_parameters)
 
 // The parameters below control core functionalities of the code, but many values will need to be changed
   p_parameters->num_part = 999;                            //number of particles
-  p_parameters->num_dt_steps = 20000;                        //number of time steps
+  p_parameters->num_dt_steps = 200;                        //number of time steps
   p_parameters->exclude_12_nb = 1;                          // 1-2 connected atoms exluded from non-bonded interactions 
   p_parameters->exclude_13_nb = 1;                          // 1-3 connected atoms exluded from non-bonded interactions    
-  p_parameters->dt = 0.01;                                  //integration time step
+  p_parameters->dt = 0.001;                                  //integration time step
   p_parameters->tau = 10;                                // typical 0.1 picosecond = 10 fentosecond
   //p_parameters->L = (struct Vec3D){14.938, 14.938, 14.938}; //box size                                 
   p_parameters->L = (struct Vec3D){60.0, 60.0, 60.0};       // box size for question 4 to 12  
