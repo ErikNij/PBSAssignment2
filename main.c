@@ -91,12 +91,12 @@ int main(void)
 
     int start_collecting_histogram = 0; 
 
-    while (step < parameters.num_dt_steps)
+    while (step < parameters.num_dt_steps)  // start of the velocity-Verlet loop
     {
         step++;
         time += parameters.dt;
         Ekin = update_velocities_half_dt(&parameters, &nbrlist, &vectors);
-
+        thermostat(&parameters, &vectors, Ekin);
         update_positions(&parameters, &nbrlist, &vectors);
         boundary_conditions(&parameters, &vectors);
         update_nbrlist(&parameters, &vectors, &nbrlist);
