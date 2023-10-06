@@ -15,15 +15,18 @@ double calculate_forces(struct Parameters *p_parameters, struct Nbrlist *p_nbrli
         f[i] = (struct Vec3D){0.0, 0.0, 0.0}; /*initialize forces to zero*/
 
     double Epot = calculate_forces_bond(p_parameters, p_vectors);
-    Epot += calculate_forces_angle(p_parameters, p_vectors);
+    //Epot += calculate_forces_angle(p_parameters, p_vectors);
     Epot += calculate_forces_dihedral(p_parameters, p_vectors);
     Epot += calculate_forces_nb(p_parameters, p_nbrlist, p_vectors);
     return Epot;
 }
 
+/* Question 8*/
 double calculate_forces_bond(struct Parameters *p_parameters, struct Vectors *p_vectors)
 {
     double Epot = 0;
+    double rijabs;
+    double Fij = 0.0;
     struct Bond * bonds = p_vectors->bonds;
     size_t num_bonds = p_vectors->num_bonds;
     struct Vec3D *f = p_vectors->f;
@@ -43,9 +46,12 @@ double calculate_forces_bond(struct Parameters *p_parameters, struct Vectors *p_
         rij.z = r[i].z - r[j].z;
         rij.z = rij.z - L.z*floor(rij.z/L.z+0.5);
 
-        /*
-            Here provide the force calculation
-        */
+        rijabs = sqrt((rij.x * rij.x) + (rij.y * rij.y) +( rij.z * rij.z));   //
+        //p_vectors->length[q] = rijabs; 
+        Fij = -p_parameters->k_b * (rijabs - p_parameters->r_0);        //
+        fi.x = Fij * (rij.x / rijabs);                                  //
+        fi.y = Fij * (rij.y / rijabs);                                  //
+        fi.z = Fij * (rij.z / rijabs);                                  //
 
         f[i].x += fi.x;
         f[i].y += fi.y;
@@ -53,7 +59,9 @@ double calculate_forces_bond(struct Parameters *p_parameters, struct Vectors *p_
         f[j].x -= fi.x;
         f[j].y -= fi.y;
         f[j].z -= fi.z;
+        Epot += p_parameters->k_b /2 * pow(rijabs - p_parameters->r_0,2);
     }
+
     return Epot;
 }
 
@@ -87,9 +95,15 @@ double calculate_forces_angle(struct Parameters *p_parameters, struct Vectors *p
         rkj.z = r[k].z - r[j].z;
         rkj.z = rkj.z - L.z*floor(rkj.z/L.z+0.5);
 
-        /*
-            Here provide the force calculation
-        */
+        double dotProduct = (rij.x* rkj.x) + (rij.y* rkj.y) + (rij.z* rkj.z);
+        double FConst = p_parameters->k_t * (acos(dotProduct) - p_parameters->theta_0) / sqrt(1 - pow(dotProduct,2));
+        fi.x  = FConst / (rij.x + rij.y + rij.z) * (rkj.x - (rij.x*dotProduct));
+        fi.y  = FConst / (rij.x + rij.y + rij.z) * (rkj.y - (rij.y*dotProduct));
+        fi.z  = FConst / (rij.x + rij.y + rij.z) * (rkj.z - (rij.z*dotProduct));
+
+        fk.x  = FConst / (rkj.x + rkj.y + rkj.z) * (rij.x - (rkj.x*dotProduct));
+        fk.y  = FConst / (rkj.x + rkj.y + rkj.z) * (rij.y - (rkj.y*dotProduct));
+        fk.z  = FConst / (rkj.x + rkj.y + rkj.z) * (rij.z - (rkj.z*dotProduct));
         
         f[i].x += fi.x;
         f[i].y += fi.y;
@@ -100,6 +114,7 @@ double calculate_forces_angle(struct Parameters *p_parameters, struct Vectors *p
         f[k].x += fk.x;
         f[k].y += fk.y;
         f[k].z += fk.z;
+        Epot += p_parameters->k_t / 2 * pow(acos(dotProduct) - p_parameters->theta_0,2);
     }
     return Epot;
 }
@@ -129,7 +144,7 @@ double calculate_forces_nb(struct Parameters *p_parameters, struct Nbrlist *p_nb
 This function returns the total potential energy of the system. */
 {
     struct Vec3D df;
-    double r_cutsq, sigmasq, sr2, sr6, sr12, fr, prefctr;
+    double r_cutsq, sigmasq, sr2, sr6, sr12, fr, prefctr,meanSigma;
     struct DeltaR rij;
     struct Pair *nbr = p_nbrlist->nbr;
     const size_t num_nbrs = p_nbrlist->num_nbrs;
@@ -137,28 +152,39 @@ This function returns the total potential energy of the system. */
     size_t num_part = p_parameters->num_part;
 
     r_cutsq = p_parameters->r_cut * p_parameters->r_cut;
-    sigmasq = p_parameters->sigma * p_parameters->sigma;
+    //sigmasq = p_parameters->sigma * p_parameters->sigma;
     double epsilon = p_parameters->epsilon;
 
     double Epot = 0.0, Epot_cutoff;
-    sr2 = sigmasq / r_cutsq;
-    sr6 = sr2 * sr2 * sr2;
-    sr12 = sr6 * sr6;
-    Epot_cutoff = sr12 - sr6;
+    //sr2 = sigmasq / r_cutsq;
 
     for (size_t k = 0; k < num_nbrs; k++)
     {
         // for each pair in the neighbor list compute the pair forces
+        // Getting the sigma for the pair, which is just the mean
+        meanSigma = (p_parameters->sigmaArray[nbr[k].i % 3] + p_parameters->sigmaArray[nbr[k].j % 3])/2;
+        sr2 = meanSigma * meanSigma / r_cutsq;
+        sr6 = sr2 * sr2 * sr2;
+        sr12 = sr6 * sr6;
+        Epot_cutoff = sr12 - sr6;
         rij = nbr[k].rij;
         size_t i = nbr[k].i;
         size_t j = nbr[k].j;
         if (rij.sq < r_cutsq)
         // Compute forces if the distance is smaller than the cutoff distance
         {
-            // pair forces are given by the LJ interaction
-            sr2 = sigmasq / rij.sq;
+            if (p_parameters->epsilonArray[nbr[k].i % 3] != p_parameters->epsilonArray[nbr[k].j % 3])
+            {
+                epsilon = sqrt(p_parameters->epsilonArray[nbr[k].i % 3] * p_parameters->epsilonArray[nbr[k].j % 3]);
+            }
+            else
+            {
+                epsilon = p_parameters->epsilonArray[nbr[k].i % 3];
+            }
+            sr2 = meanSigma * meanSigma / rij.sq;
             sr6 = sr2 * sr2 * sr2;
             sr12 = sr6 * sr6;
+            // pair forces are given by the LJ interaction
             Epot += 4.0 * epsilon * (sr12 - sr6 - Epot_cutoff);
             fr = 24.0 * epsilon * (2.0 * sr12 - sr6) / rij.sq; //force divided by distance
             df.x = fr * rij.x;

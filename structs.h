@@ -26,9 +26,17 @@ struct Parameters
     int exclude_13_nb;       //!< If true (-1) 1-3 connected atoms are exluded from non-bonded interactions    
     double kT;               //!< Thermal energy
     double T;                // Temp K
+    double tau;
     double mass;             //!< Mass of a particle
     double epsilon;          //!< LJ interaction strength
     double sigma;            //!< LJ particle diameter
+    double sigmaArray[3];
+    double epsilonArray[3];
+    double massArray[3];
+    double r_0;
+    double k_b;
+    double k_t;
+    double theta_0;
     double r_cut;            //!< Cut-off distance for LJ interaction
     double r_shell;          //!< Shell thickness for neighbor list
     size_t num_dt_pdb;       //!< Number of time steps between pdb saves
@@ -116,6 +124,7 @@ struct Vectors
     struct Bond *bonds;         //!< bonds
     struct Angle *angles;       //!< angles
     struct Dihedral *dihedrals; //!< dihedrals
+    double *length;             //!< bond lengths in Angstrong
 };
 
 /**

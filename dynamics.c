@@ -36,9 +36,9 @@ double update_velocities_half_dt(struct Parameters *p_parameters, struct Nbrlist
         p_vectors->v[i].x += factor * p_vectors->f[i].x;
         p_vectors->v[i].y += factor * p_vectors->f[i].y;
         p_vectors->v[i].z += factor * p_vectors->f[i].z;
-        Ekin += p_vectors->v[i].x * p_vectors->v[i].x + p_vectors->v[i].y * p_vectors->v[i].y + p_vectors->v[i].z * p_vectors->v[i].z;
+        Ekin += p_parameters->massArray[i%3]*( p_vectors->v[i].x * p_vectors->v[i].x + p_vectors->v[i].y * p_vectors->v[i].y + p_vectors->v[i].z * p_vectors->v[i].z);
     }
-    Ekin = 0.5 * Ekin * p_parameters->mass;
+    Ekin = 0.5 * Ekin;
     return Ekin;
 }
 
@@ -60,6 +60,16 @@ void boundary_conditions(struct Parameters *p_parameters, struct Vectors *p_vect
 }
 
 void thermostat(struct Parameters *p_parameters, struct Vectors *p_vectors, double Ekin)
-/* Change velocities by thermostatting */
+/* Change velocities by thermostatting 
+Question 6 */
 {
+     double current_temp = 2.0 * Ekin / (3.0 * p_parameters->num_part * Kb); // Current temperature calculation
+     double lambda = sqrt(1.0 + p_parameters->dt / p_parameters->tau * (p_parameters->T/ current_temp - 1.0));
+
+     for (size_t i = 0; i < p_parameters->num_part; i++)
+    {
+        p_vectors->v[i].x *= lambda;
+        p_vectors->v[i].y *= lambda;
+        p_vectors->v[i].z *= lambda;
+    }
 }
