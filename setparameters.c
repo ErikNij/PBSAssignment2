@@ -44,7 +44,7 @@ void set_parameters(struct Parameters *p_parameters)
   p_parameters->dt = 0.01;                                  //integration time step
   p_parameters->tau = 100;                                // typical 0.1 picosecond = 10 fentosecond
   //p_parameters->L = (struct Vec3D){14.938, 14.938, 14.938}; //box size                                 
-  p_parameters->L = (struct Vec3D){60.0, 60.0, 60.0};       // box size for question 4 to 12  
+  p_parameters->L = (struct Vec3D){60.0, 60.0, 60.0};       // box size for question from Q6  
     p_parameters->r_cut = 2.5;                              //cut-off distance used for neigbor list
   p_parameters->r_shell = 0.4;                              //shell thickness for neighbor list
   p_parameters->num_dt_pdb = 100;                           //number of time steps in between pdb outputs
