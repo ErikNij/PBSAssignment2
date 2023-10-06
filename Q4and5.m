@@ -22,4 +22,4 @@ title('Energy vs Time');
 legend('Location', 'Best');
 grid on;
 
-% Display the plot
+
