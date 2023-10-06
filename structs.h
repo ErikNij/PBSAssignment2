@@ -33,6 +33,8 @@ struct Parameters
     double sigmaArray[3];
     double epsilonArray[3];
     double massArray[3];
+    size_t num_step_ang_len;
+    size_t num_step_rad_dis;
     double r_0;
     double k_b;
     double k_t;

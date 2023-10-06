@@ -5,8 +5,9 @@
 #include "constants.h"
 #include "structs.h"
 #include "nbrlist.h"
+#include "RadDist.h"
 
-double calculate_forces(struct Parameters *p_parameters, struct Nbrlist *p_nbrlist, struct Vectors *p_vectors)
+double calculate_forces(struct Parameters *p_parameters, struct Nbrlist *p_nbrlist, struct Vectors *p_vectors,size_t step,FILE *fpt2)
 {
     struct Vec3D *f = p_vectors->f;
     size_t num_part = p_parameters->num_part;
@@ -15,9 +16,9 @@ double calculate_forces(struct Parameters *p_parameters, struct Nbrlist *p_nbrli
         f[i] = (struct Vec3D){0.0, 0.0, 0.0}; /*initialize forces to zero*/
 
     double Epot = calculate_forces_bond(p_parameters, p_vectors);
-    Epot += calculate_forces_angle(p_parameters, p_vectors);
+    Epot += calculate_forces_angle(p_parameters, p_vectors,step);
     Epot += calculate_forces_dihedral(p_parameters, p_vectors);
-    Epot += calculate_forces_nb(p_parameters, p_nbrlist, p_vectors);
+    Epot += calculate_forces_nb(p_parameters, p_nbrlist, p_vectors,step,fpt2);
     return Epot;
 }
 
@@ -47,7 +48,6 @@ double calculate_forces_bond(struct Parameters *p_parameters, struct Vectors *p_
         rij.z = rij.z - L.z*floor(rij.z/L.z+0.5);
 
         rijabs = sqrt((rij.x * rij.x) + (rij.y * rij.y) +( rij.z * rij.z));   //
-        //p_vectors->length[q] = rijabs; 
         Fij = -p_parameters->k_b * (rijabs - p_parameters->r_0);        //
         fi.x = Fij * (rij.x / rijabs);                                  //
         fi.y = Fij * (rij.y / rijabs);                                  //
@@ -65,7 +65,7 @@ double calculate_forces_bond(struct Parameters *p_parameters, struct Vectors *p_
     return Epot;
 }
 
-double calculate_forces_angle(struct Parameters *p_parameters, struct Vectors *p_vectors)
+double calculate_forces_angle(struct Parameters *p_parameters, struct Vectors *p_vectors,size_t step)
 {
     double Epot = 0;
     struct Angle * angles = p_vectors->angles;
@@ -75,6 +75,13 @@ double calculate_forces_angle(struct Parameters *p_parameters, struct Vectors *p
     struct Vec3D L = p_parameters->L;
     struct Vec3D rij, rkj;
     struct Vec3D fi={0}, fk={0};
+    FILE *fpt;
+
+    if (step == p_parameters->num_step_ang_len)
+    {
+        //We want to see the results at this time step
+        fpt = fopen("AnglesAndDist.csv","w+");
+    }
     for(size_t q = 0; q < num_angles; ++q)
     {
         size_t i = angles[q].i;
@@ -122,7 +129,21 @@ double calculate_forces_angle(struct Parameters *p_parameters, struct Vectors *p
         f[k].y += fk.y;
         f[k].z += fk.z;
         Epot += p_parameters->k_t / 2 * pow(acos(dotProduct) - p_parameters->theta_0,2);
+
+        if (step == p_parameters->num_step_ang_len)
+        {
+        //We want to see the results at this time step
+            fprintf(fpt,"%zu, %f, %f, %f\n", step,ijsq,kjsq,CurrentAngle);  // Write values to the CSV file
+        }
+        
     }
+    
+    if (step == p_parameters->num_step_ang_len)
+    {
+        //We want to see the results at this time step
+        fclose(fpt); // Close the file
+    }
+    
     return Epot;
 }
 
@@ -146,7 +167,7 @@ double calculate_forces_dihedral(struct Parameters *p_parameters, struct Vectors
 }
 
 
-double calculate_forces_nb(struct Parameters *p_parameters, struct Nbrlist *p_nbrlist, struct Vectors *p_vectors)
+double calculate_forces_nb(struct Parameters *p_parameters, struct Nbrlist *p_nbrlist, struct Vectors *p_vectors,size_t step,FILE *fpt2)
 /* Compute non-bonded forces on particles using the pairs in a neighbor list.
 This function returns the total potential energy of the system. */
 {
@@ -157,6 +178,18 @@ This function returns the total potential energy of the system. */
     const size_t num_nbrs = p_nbrlist->num_nbrs;
     struct Vec3D *f = p_vectors->f;
     size_t num_part = p_parameters->num_part;
+    //FILE *fpt;
+    if (step >= p_parameters->num_step_rad_dis)
+    {
+        //We want to see the results after this time step
+        radDist(p_parameters,p_nbrlist,fpt2);
+    }
+    if (step == p_parameters->num_dt_steps)
+    {
+        //We want to see the results at this time step
+        fclose(fpt2); // Close the file
+    }
+    
 
     r_cutsq = p_parameters->r_cut * p_parameters->r_cut;
     //sigmasq = p_parameters->sigma * p_parameters->sigma;
@@ -171,6 +204,7 @@ This function returns the total potential energy of the system. */
         
         
         rij = nbr[k].rij;
+
         size_t i = nbr[k].i;
         size_t j = nbr[k].j;
         if (rij.sq < r_cutsq)
@@ -207,6 +241,5 @@ This function returns the total potential energy of the system. */
             f[j].z -= df.z;
         }
     }
-
     return Epot;
 }

@@ -10,7 +10,7 @@
  * @param p_vectors used members: r, f
  * @return double potential energy
  */
-double calculate_forces(struct Parameters *p_parameters, struct Nbrlist *p_nbrlist, struct Vectors *p_vectors);
+double calculate_forces(struct Parameters *p_parameters, struct Nbrlist *p_nbrlist, struct Vectors *p_vectors, size_t step,FILE *fpt2);
 
 /**
  * @brief Calculate non-bonded forces on paricles
@@ -19,7 +19,7 @@ double calculate_forces(struct Parameters *p_parameters, struct Nbrlist *p_nbrli
  * @param[out] p_vectors used members: f
  * @return double potential energy
  */
-double calculate_forces_nb(struct Parameters *p_parameters, struct Nbrlist *p_nbrlist, struct Vectors *p_vectors);
+double calculate_forces_nb(struct Parameters *p_parameters, struct Nbrlist *p_nbrlist, struct Vectors *p_vectors,size_t step,FILE *fpt2);
 
 /**
  * @brief Calculate bond-stretch forces on paricles
@@ -35,7 +35,7 @@ double calculate_forces_bond(struct Parameters *p_parameters, struct Vectors *p_
  * @param p_vectors used members: r, f
  * @return double potential energy
  */
-double calculate_forces_angle(struct Parameters *p_parameters, struct Vectors *p_vectors);
+double calculate_forces_angle(struct Parameters *p_parameters, struct Vectors *p_vectors,size_t step);
 
 /**
  * @brief Calculate dihedral-torsion forces on paricles

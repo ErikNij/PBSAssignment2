@@ -45,9 +45,11 @@ void set_parameters(struct Parameters *p_parameters)
   p_parameters->tau = 10;                                // typical 0.1 picosecond = 10 fentosecond
   //p_parameters->L = (struct Vec3D){14.938, 14.938, 14.938}; //box size                                 
   p_parameters->L = (struct Vec3D){60.0, 60.0, 60.0};       // box size for question 4 to 12  
-    p_parameters->r_cut = 2.5;                              //cut-off distance used for neigbor list
+    p_parameters->r_cut = 10.0;                              //cut-off distance used for neigbor list
   p_parameters->r_shell = 0.4;                              //shell thickness for neighbor list
   p_parameters->num_dt_pdb = 100;                           //number of time steps in between pdb outputs
+  p_parameters->num_step_ang_len = p_parameters->num_dt_steps; //time step number for bond lenght and angle measurements
+  p_parameters->num_step_rad_dis = p_parameters->num_dt_steps-50; //time step or greater where radial is distance is tabluated
   strcpy(p_parameters->filename_pdb, "trajectories");       //filename (without extension) for pdb file
   p_parameters->rescale_output = 1;                         //factor used to rescale output lengthscale (Most visualisation programs identify bonds based on distances of order 1)
   p_parameters->load_restart = 0;                           //if equal 1 restart file is loaded

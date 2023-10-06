@@ -36,6 +36,7 @@
 #include "dynamics.h"
 #include "memory.h"
 #include "fileoutput.h"
+#include "RadDist.h"
 
 /**
  * @brief main The main of the MD code. After initialization,
@@ -50,6 +51,7 @@ int main(void)
     struct Nbrlist nbrlist;
     size_t step;
     double Ekin, Epot, time;
+    FILE *fpt2;
 
     set_parameters(&parameters);
     alloc_memory(&parameters, &vectors, &nbrlist);
@@ -63,13 +65,14 @@ int main(void)
     else
         initialise(&parameters, &vectors, &nbrlist, &step, &time);
     build_nbrlist(&parameters, &vectors, &nbrlist);
-    Epot = calculate_forces(&parameters, &nbrlist, &vectors);
+    Epot = calculate_forces(&parameters, &nbrlist, &vectors,step,fpt2);
     record_trajectories_pdb(1, &parameters, &vectors, time);
 
     FILE *fpt; // Declare a file pointer
 
     // Open the CSV file for writing
     fpt = fopen("Save_Energy.csv","w+");
+    fpt2 = fopen("radDist2.csv","w+");
     fprintf(fpt,"Time_step, Time, Epot, Ekin, Etot\n");
 
     while (step < parameters.num_dt_steps) // start of the velocity-Verlet loop
@@ -81,7 +84,7 @@ int main(void)
         update_positions(&parameters, &nbrlist, &vectors);
         boundary_conditions(&parameters, &vectors);
         update_nbrlist(&parameters, &vectors, &nbrlist);
-        Epot = calculate_forces(&parameters, &nbrlist, &vectors);
+        Epot = calculate_forces(&parameters, &nbrlist, &vectors,step,fpt2);
         Ekin = update_velocities_half_dt(&parameters, &nbrlist, &vectors);
 
         printf("Step %zu, Time %f, Epot %f, Ekin %f, Etot %f\n", step, time, Epot, Ekin, Epot + Ekin);
