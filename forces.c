@@ -99,17 +99,8 @@ double calculate_forces_angle(struct Parameters *p_parameters, struct Vectors *p
         double ijsq = sqrt(rij.x*rij.x + rij.y*rij.y + rij.z*rij.z);
 
         double dotProduct = (rij.x* rkj.x) + (rij.y* rkj.y) + (rij.z* rkj.z);
-        double arg = dotProduct/kjsq/ijsq;
-        double dig;
-        if (arg < 0)
-        {
-            dig = ceil(arg);
-            arg = arg - dig;
-        }
-        else
-            dig = floor(arg);
-            arg = arg - dig;
-        double CurrentAngle = acos(arg);
+        dotProduct = dotProduct/kjsq/ijsq;
+        double CurrentAngle = acos(dotProduct);
         
 
         double FConst = p_parameters->k_t * (CurrentAngle - p_parameters->theta_0) / sqrt(1 - pow(dotProduct,2));
@@ -130,7 +121,7 @@ double calculate_forces_angle(struct Parameters *p_parameters, struct Vectors *p
         f[k].x += fk.x;
         f[k].y += fk.y;
         f[k].z += fk.z;
-        Epot += p_parameters->k_t / 2 * pow(acos(dotProduct/kjsq/ijsq) - p_parameters->theta_0,2);
+        Epot += p_parameters->k_t / 2 * pow(acos(dotProduct) - p_parameters->theta_0,2);
     }
     return Epot;
 }
